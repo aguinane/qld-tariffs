@@ -1,7 +1,7 @@
 # Costs for each tariff are specified below (excl. GST)
 # Supply charges are in c/day
 # Usage charges are in c/kWh
-# Demand charges are in $/kW/month
+# Demand charges are in c/kW/month
 
 # Tariff 11 - Residential
 T11_Ergon:
@@ -35,6 +35,6 @@ T12_Origin:
 T14_Ergon:
     supply_charge: 60.514
     usage_all: 14.984
-    demand_peak: 61.790
-    demand_offpeak: 11.258
+    demand_peak: 6179.0
+    demand_offpeak: 1125.8
 

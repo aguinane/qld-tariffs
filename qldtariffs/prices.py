@@ -1,21 +1,26 @@
 from collections import namedtuple
-import yaml
+from .tariffs import T11, T12, T14
 
 Charge = namedtuple('Charge', ['units', 'unit_rate',
                                'cost_excl_gst', 'gst', 'cost_incl_gst'])
 
 
-def get_tariff_rates(tariff_name):
+def get_tariff_rates(tariff, retailer):
     """ Load tariff rates from config file
 
-    :param tariff_name: Name of tariff from yaml config
+    :param tariff: Name of tariff from yaml config
+    :param retailer: Name of retailer to get costs from
     """
-    with open('qldtariffs/rates.yaml', 'rt') as f:
-        rates = yaml.safe_load(f.read())
-    try:
-        return rates[tariff_name]
-    except KeyError:
-        raise ValueError('{} is not a valid tariff name'.format(tariff_name))
+
+    if tariff == 'T11':
+        rates = T11
+    elif tariff == 'T12':
+        rates = T12
+    elif tariff == 'T14':
+        rates = T14
+    else:
+        raise ValueError("Invalid Tariff Type {}".format(tariff))
+    return rates[retailer]
 
 
 def calculate_charge(units, unit_rate):
@@ -30,10 +35,10 @@ def calculate_charge(units, unit_rate):
     return Charge(units, unit_rate, cost_excl_gst, gst, cost_incl_gst)
 
 
-def electricity_charges_general(tariff, days, usage):
+def electricity_charges_general(retailer, days, usage):
     """ Calculate electricity charges for a general tariff
 
-    tariff: The name of the tariff config to load rates from
+    retailer: The name of the retailer to load rates from
     days: The number of days in the billing period
     usage: The energy usage in kWh for the billing period
     """
@@ -42,7 +47,7 @@ def electricity_charges_general(tariff, days, usage):
                                ['supply_charge', 'all_usage', 'total_charges']
                                )
 
-    tariff_rates = get_tariff_rates(tariff)
+    tariff_rates = get_tariff_rates('T11', retailer)
     supply_charge = calculate_charge(days, tariff_rates['supply_charge'])
     all_usage = calculate_charge(usage, tariff_rates['usage_all'])
     cost_excl_gst = supply_charge.cost_excl_gst + all_usage.cost_excl_gst
@@ -53,10 +58,10 @@ def electricity_charges_general(tariff, days, usage):
     return GeneralTariff(supply_charge, all_usage, total_charges)
 
 
-def electricity_charges_tou(tariff, days, peak, shoulder, offpeak):
+def electricity_charges_tou(retailer, days, peak, shoulder, offpeak):
     """ Calculate electricity charges for a time-of-use tariff
 
-    tariff: The name of the tariff config to load rates from
+    retailer: The name of the retailer to load rates from
     days: The number of days in the billing period
     peak: The energy usage in kWh for the peak billing period
     shoulder: The energy usage in kWh for the shoulder billing period
@@ -69,7 +74,7 @@ def electricity_charges_tou(tariff, days, peak, shoulder, offpeak):
                             'total_charges']
                            )
 
-    tariff_rates = get_tariff_rates(tariff)
+    tariff_rates = get_tariff_rates('T12', retailer)
     supply_charge = calculate_charge(days, tariff_rates['supply_charge'])
     peak = calculate_charge(peak, tariff_rates['usage_peak'])
     shoulder = calculate_charge(shoulder, tariff_rates['usage_shoulder'])
@@ -83,10 +88,10 @@ def electricity_charges_tou(tariff, days, peak, shoulder, offpeak):
     return ToUTariff(supply_charge, peak, shoulder, offpeak, total_charges)
 
 
-def electricity_charges_tou_demand(tariff, days, usage, demand, peak_season=True):
+def electricity_charges_tou_demand(retailer, days, usage, demand, peak_season=True):
     """ Calculate electricity charges for a time-of-use tariff
 
-    tariff: The name of the tariff config to load rates from
+    retailer: The name of the retailer to load rates from
     days: The number of days in the billing period
     usage: The energy usage in kWh for the billing period
     demand: The chargeable demand in kW
@@ -98,7 +103,7 @@ def electricity_charges_tou_demand(tariff, days, usage, demand, peak_season=True
                                 'demand', 'total_charges']
                             )
 
-    tariff_rates = get_tariff_rates(tariff)
+    tariff_rates = get_tariff_rates('T14', retailer)
     supply_charge = calculate_charge(days, tariff_rates['supply_charge'])
     all_usage = calculate_charge(usage, tariff_rates['usage_all'])
     if peak_season:
@@ -114,13 +119,3 @@ def electricity_charges_tou_demand(tariff, days, usage, demand, peak_season=True
     return ToUDTariff(supply_charge, all_usage, demand, total_charges)
 
 
-if __name__ == '__main__':
-    t11_cost = electricity_charges_general(
-        tariff='T11_Ergon', days=31, usage=1)
-    print(t11_cost)
-    t12_cost = electricity_charges_tou(
-        tariff='T12_Ergon', days=31, peak=1, shoulder=0, offpeak=1)
-    print(t12_cost)
-    t14_cost = electricity_charges_tou_demand(
-        tariff='T14_Ergon', days=31, usage=183.92, demand=0.700, peak_season=True)
-    print(t14_cost)

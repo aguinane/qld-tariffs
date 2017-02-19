@@ -3,7 +3,7 @@
 
 import unittest
 import datetime
-from qldtariffs import get_daily_usages
+from qldtariffs import get_daily_usages, get_billing_end
 
 
 PEAK_RECORDS = [
@@ -29,6 +29,17 @@ OFFPEAK_RECORDS = [
 
 class TestGrouping(unittest.TestCase):
     """ Test tariff costs are grouped into daily usage correctly """
+
+    def test_date_settings(self):
+        """ Test billing dates are allocated correctly """
+        billing_end = datetime.datetime(2017, 1, 1, 23, 40)
+        check = datetime.datetime(2017, 1, 2, 0, 0)
+        self.assertEqual(get_billing_end(billing_end), check)
+
+        billing_end = datetime.datetime(2017, 1, 1, 0, 20)
+        check = datetime.datetime(2017, 1, 1, 0, 30)
+        self.assertEqual(get_billing_end(billing_end), check)
+
 
     def test_agl_peak(self):
         """ Test time of day usage for AGL on weekday """

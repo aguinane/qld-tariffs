@@ -158,6 +158,6 @@ def get_billing_end(end_date):
     if end_date.minute == 0:
         return end_date
     elif end_date.minute > 30:
-        return end_date.replace(hour=end_date.hour + 1, minute=0)
+        return end_date.replace(minute=0) + datetime.timedelta(hours=1)
     else:
         return end_date.replace(minute=30)

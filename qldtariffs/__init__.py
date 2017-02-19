@@ -10,5 +10,6 @@ from .prices import electricity_charges_tou
 from .prices import electricity_charges_tou_demand
 from .analysis import split_into_billing_intervals
 from .analysis import get_daily_usages, get_monthly_usages
+from .analysis import get_billing_end
 
-__version__ = "0.1"
+__version__ = "0.1.1"

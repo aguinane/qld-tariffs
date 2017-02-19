@@ -53,12 +53,18 @@ def in_peak(billing_time,
             shoulder_months, shoulder_days, shoulder_start, shoulder_end):
     """ Calculate if billing time is in PEAK, SHOULDER or OFFPEAK period
     """
+
     if in_peak_day(billing_time, peak_months, peak_days) and in_peak_time(billing_time, peak_start, peak_end):
-        return 'PEAK'
+        period = 'PEAK'
     elif in_peak_day(billing_time, shoulder_months, shoulder_days) and in_peak_time(billing_time, shoulder_start, shoulder_end):
-        return 'SHOULDER'
+        period = 'SHOULDER'
     else:
-        return 'OFFPEAK'
+        period = 'OFFPEAK'
+    if in_peak_time(billing_time, peak_start, peak_end):
+        demand_period = 'OFFPEAK'
+    else:
+        demand_period = 'PEAK'
+    return (period, demand_period)
 
 
 def in_peak_day(billing_time, peak_months, peak_days):

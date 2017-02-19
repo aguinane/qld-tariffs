@@ -1,14 +1,87 @@
 from collections import namedtuple
 from .tariffs import T11, T12, T14
+import datetime
 
 Charge = namedtuple('Charge', ['units', 'unit_rate',
                                'cost_excl_gst', 'gst', 'cost_incl_gst'])
 
 
+def get_tariff_period(billing_time, retailer='Ergon', tariff='T12'):
+    """ Load tariff peak periods from config file
+
+    :param billing_time: The datetime to check
+    :param tariff: Name of tariff from config
+    :param retailer: Name of retailer to get costs from
+    """
+    if tariff == 'T11':
+        rates = T11
+    elif tariff == 'T12':
+        rates = T12
+    elif tariff == 'T14':
+        rates = T14
+    else:
+        raise ValueError("Invalid Tariff Type {}".format(tariff))
+
+    r = rates[retailer]
+    if 'shoulder_months' in r.keys():
+        return in_peak(billing_time,
+                       r['peak_months'], r['peak_days'],
+                       r['peak_start'], r['peak_end'],
+                       r['shoulder_months'], r['shoulder_days'],
+                       r['shoulder_start'], r['shoulder_end']
+                       )
+    elif 'peak_months' in r.keys():
+        # No shoulder period specified
+        return in_peak(billing_time,
+                       r['peak_months'], r['peak_days'],
+                       r['peak_start'], r['peak_end'],
+                       [], [], datetime.time(
+                           0, 0, 0), datetime.time(0, 0, 0)
+                       )
+    else:
+        # No peak period specified
+        return in_peak(billing_time,
+                       [], [], datetime.time(
+                           0, 0, 0), datetime.time(0, 0, 0),
+                       [], [], datetime.time(
+                           0, 0, 0), datetime.time(0, 0, 0)
+                       )
+
+
+def in_peak(billing_time,
+            peak_months, peak_days, peak_start, peak_end,
+            shoulder_months, shoulder_days, shoulder_start, shoulder_end):
+    """ Calculate if billing time is in PEAK, SHOULDER or OFFPEAK period
+    """
+    if in_peak_day(billing_time, peak_months, peak_days) and in_peak_time(billing_time, peak_start, peak_end):
+        return 'PEAK'
+    elif in_peak_day(billing_time, shoulder_months, shoulder_days) and in_peak_time(billing_time, shoulder_start, shoulder_end):
+        return 'SHOULDER'
+    else:
+        return 'OFFPEAK'
+
+
+def in_peak_day(billing_time, peak_months, peak_days):
+    """ Calculate if billing period falls on a peak day """
+    day_of_week = int(billing_time.strftime('%w'))
+    if billing_time.month in peak_months and day_of_week in peak_days:
+        return True
+    else:
+        return False
+
+
+def in_peak_time(billing_time, peak_start, peak_end):
+    """ Calculate if billing period falls in peak time period """
+    if peak_start < billing_time.time() <= peak_end:
+        return True
+    else:
+        return False
+
+
 def get_tariff_rates(tariff, retailer):
     """ Load tariff rates from config file
 
-    :param tariff: Name of tariff from yaml config
+    :param tariff: Name of tariff from config
     :param retailer: Name of retailer to get costs from
     """
 
@@ -117,5 +190,3 @@ def electricity_charges_tou_demand(retailer, days, usage, demand, peak_season=Tr
     total_charges = Charge(None, None, cost_excl_gst, gst, cost_incl_gst)
 
     return ToUDTariff(supply_charge, all_usage, demand, total_charges)
-
-

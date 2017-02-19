@@ -53,7 +53,10 @@ def average_peak_demand(daily_summary):
         if i < 4:
             avg_peak_demand = average_daily_peak_demand(day.demand)
             top_four_days.append(avg_peak_demand)
-    return mean(top_four_days)
+    if top_four_days:
+        return mean(top_four_days)
+    else:
+        return 0
 
 
 def average_daily_peak_demand(peak_usage, peak_hrs=6.5):
@@ -90,19 +93,19 @@ def get_daily_usages(records, retailer='Ergon', tariff='T12'):
                                      daily_usage[day][1],
                                      daily_usage[day][2],
                                      daily_usage[day][3] + usage,
-                                     demand_usage)
+                                     daily_usage[day][4] + demand_usage)
         elif period == 'SHOULDER':
             daily_usage[day] = Usage(daily_usage[day][0],
                                      daily_usage[day][1] + usage,
                                      daily_usage[day][2],
                                      daily_usage[day][3] + usage,
-                                     demand_usage)
+                                     daily_usage[day][4] + demand_usage)
         else:
             daily_usage[day] = Usage(daily_usage[day][0],
                                      daily_usage[day][1],
                                      daily_usage[day][2] + usage,
                                      daily_usage[day][3] + usage,
-                                     demand_usage)
+                                     daily_usage[day][4] + demand_usage)
     return daily_usage
 
 

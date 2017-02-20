@@ -3,7 +3,8 @@
 
 import unittest
 import datetime
-from qldtariffs import get_daily_usages, get_billing_end
+from qldtariffs import get_billing_end, billing_intervals
+from qldtariffs import get_daily_usages, get_monthly_usages
 
 
 PEAK_RECORDS = [
@@ -47,6 +48,34 @@ class TestGrouping(unittest.TestCase):
         billing_end = datetime.datetime(2017, 1, 2, 0, 30)
         check = datetime.datetime(2017, 1, 2, 0, 30)
         self.assertEqual(get_billing_end(billing_end), check)
+
+
+    def test_interval_splitting(self):
+        """ Test months are grouped correctly """
+        start_date = datetime.datetime(2016, 12, 31, 0, 0)
+        end_date = datetime.datetime(2017, 1, 1, 0, 0)
+        split = list(billing_intervals(start_date, end_date))
+        self.assertEqual(len(split), 48)
+        first_interval = start_date + datetime.timedelta(seconds=30 * 60)
+        self.assertEqual(split[0], first_interval)
+        self.assertEqual(split[-1], end_date)
+
+
+    def test_month_grouping(self):
+        """ Test months are grouped correctly """
+        records = [(datetime.datetime(2016, 12, 1, 0, 0),
+                    datetime.datetime(2017, 1, 1, 0, 0), 480)
+                   ]
+        months = list(get_monthly_usages(records, 'Ergon', 'T14').keys())
+        self.assertEqual(len(months), 1)
+        self.assertEqual(months, [(2016, 12)])
+
+        records = [(datetime.datetime(2016, 12, 1, 0, 0),
+            datetime.datetime(2017, 2, 1, 0, 0), 480)
+            ]
+        months = list(get_monthly_usages(records, 'Ergon', 'T14').keys())
+        self.assertEqual(len(months), 2)
+        self.assertEqual(sorted(months), [(2016, 12), (2017, 1)])
 
     def test_agl_peak(self):
         """ Test time of day usage for AGL on weekday """

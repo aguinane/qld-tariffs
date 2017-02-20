@@ -153,7 +153,7 @@ def split_into_billing_intervals(records):
 def billing_intervals(start_date, end_date):
     """ Get list of billing intervals between two dates """
     delta = datetime.timedelta(seconds=30 * 60)
-    curr = start_date
+    curr = start_date + delta
     while curr <= end_date:
         yield curr
         curr += delta

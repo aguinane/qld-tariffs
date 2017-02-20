@@ -30,16 +30,23 @@ OFFPEAK_RECORDS = [
 class TestGrouping(unittest.TestCase):
     """ Test tariff costs are grouped into daily usage correctly """
 
-    def test_date_settings(self):
+    def test_billing_end(self):
         """ Test billing dates are allocated correctly """
         billing_end = datetime.datetime(2017, 1, 1, 23, 40)
         check = datetime.datetime(2017, 1, 2, 0, 0)
         self.assertEqual(get_billing_end(billing_end), check)
 
-        billing_end = datetime.datetime(2017, 1, 1, 0, 20)
-        check = datetime.datetime(2017, 1, 1, 0, 30)
+        billing_end = datetime.datetime(2017, 1, 2, 0, 0)
+        check = datetime.datetime(2017, 1, 2, 0, 0)
         self.assertEqual(get_billing_end(billing_end), check)
 
+        billing_end = datetime.datetime(2017, 1, 2, 0, 20)
+        check = datetime.datetime(2017, 1, 2, 0, 30)
+        self.assertEqual(get_billing_end(billing_end), check)
+
+        billing_end = datetime.datetime(2017, 1, 2, 0, 30)
+        check = datetime.datetime(2017, 1, 2, 0, 30)
+        self.assertEqual(get_billing_end(billing_end), check)
 
     def test_agl_peak(self):
         """ Test time of day usage for AGL on weekday """

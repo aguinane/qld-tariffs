@@ -12,7 +12,7 @@ MonthUsage = namedtuple(
 def get_monthly_usages(records, retailer='Ergon', tariff='T14'):
     """ Get summated monthly usages
 
-    :param records: Tuple in the form of (billing_end, usage)
+    :param records: Tuple in the form of (billing_start, billing_end, usage)
     :param retailer: Retailer config to get the peak time periods from
     :param tariff: Name of tariff from config
     """
@@ -20,7 +20,9 @@ def get_monthly_usages(records, retailer='Ergon', tariff='T14'):
     months = dict()
     billing = split_into_billing_intervals(records)
     for billing_end, usage in billing:
-        month = (billing_end.year, billing_end.month)
+        # Dates are end of billing period so first interval is previous day
+        day = billing_end - datetime.timedelta(hours=0.5)
+        month = (day.year, day.month)
         if month not in months:
             months[month] = []
 
@@ -71,14 +73,15 @@ def average_daily_peak_demand(peak_usage, peak_hrs=6.5):
 def get_daily_usages(records, retailer='Ergon', tariff='T12'):
     """ Get summated daily usages
 
-    :param records: Tuple in the form of (billing_end, usage)
+    :param records: Tuple in the form of (billing_start, billing_end, usage)
     :param retailer: Retailer config to get the peak time periods from
     :param tariff: Name of tariff from config
     """
     daily_usage = dict()
     billing = split_into_billing_intervals(records)
     for billing_end, usage in billing:
-        day = billing_end.date()
+        # Dates are end of billing period so first interval is previous day
+        day = (billing_end - datetime.timedelta(hours=0.5)).date()
         if day not in daily_usage:
             daily_usage[day] = Usage(0, 0, 0, 0, 0)  # Create daily tuple
 
@@ -158,9 +161,10 @@ def billing_intervals(start_date, end_date):
 
 def get_billing_end(end_date):
     """ Get 30min billing end time """
-    if end_date.minute == 0:
+    if end_date.minute in [0, 30]:
         return end_date
     elif end_date.minute > 30:
+        # Move forward an hour and set minute to zero
         return end_date.replace(minute=0) + datetime.timedelta(hours=1)
     else:
         return end_date.replace(minute=30)

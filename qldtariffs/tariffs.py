@@ -64,6 +64,7 @@ T14 = {
         'usage_all': 14.984,
         'demand_peak': 6179.0,
         'demand_offpeak': 1125.8,
+        'demand_offpeak_min': 3,
         'peak_start': datetime.time(15, 0, 0),
         'peak_end': datetime.time(21, 30, 0),
         'peak_months': [1, 2, 12],

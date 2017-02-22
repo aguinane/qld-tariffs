@@ -190,6 +190,9 @@ def electricity_charges_tou_demand(retailer, days, usage, demand, peak_season=Tr
     if peak_season:
         demand = calculate_charge(demand, tariff_rates['demand_peak'])
     else:
+        # Set chargeable demand to minimum kW value
+        if demand < tariff_rates['demand_offpeak_min']:
+            demand = tariff_rates['demand_offpeak_min']
         demand = calculate_charge(demand, tariff_rates['demand_offpeak'])
     cost_excl_gst = supply_charge.cost_excl_gst + \
         all_usage.cost_excl_gst + demand.cost_excl_gst

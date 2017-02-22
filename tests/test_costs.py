@@ -37,3 +37,9 @@ class TestCharges(unittest.TestCase):
         self.assertAlmostEqual(charges.all_usage.cost_incl_gst, 3031, places=0)
         self.assertAlmostEqual(charges.demand.cost_incl_gst, 4758, places=0)
         self.assertAlmostEqual(charges.total_charges.cost_incl_gst, 9853, places=0)
+
+        charges = electricity_charges_tou_demand('Ergon', 31, 183.92, 0.700, False)
+        self.assertAlmostEqual(charges.supply_charge.cost_incl_gst, 2064, places=0)
+        self.assertAlmostEqual(charges.all_usage.cost_incl_gst, 3031, places=0)
+        self.assertAlmostEqual(charges.demand.cost_incl_gst, 3715, places=0)
+        self.assertAlmostEqual(charges.total_charges.cost_incl_gst, 8810, places=0)

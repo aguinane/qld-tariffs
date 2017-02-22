@@ -12,4 +12,4 @@ from .analysis import split_into_billing_intervals
 from .analysis import get_daily_usages, get_monthly_usages
 from .analysis import get_billing_end, billing_intervals
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"

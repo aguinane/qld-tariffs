@@ -3,11 +3,11 @@
 
 import unittest
 import datetime
-from nemreader import MeterRecord
+import nemreader as nr
 from qldtariffs import get_monthly_usages, get_daily_usages
 
-INTERVAL_READINGS = MeterRecord('examples/example_NEM12.csv').readings['E1']
-MANUAL_READINGS = MeterRecord('examples/example_NEM13.csv').readings['11']
+INTERVAL_READINGS = nr.read_nem_file('examples/example_NEM12.csv').readings['3044076134']['E1']
+MANUAL_READINGS = nr.read_nem_file('examples/example_NEM13.csv').readings['3044076134']['11']
 
 
 class TestGrouping(unittest.TestCase):
@@ -15,6 +15,8 @@ class TestGrouping(unittest.TestCase):
 
     def test_nem12_data_daily(self):
         """ Test example NEM12 daily summary """
+        a = nr.read_nem_file('examples/example_NEM12.csv').readings['3044076134']['E1']
+        print(a[0])
         daily_summaries = get_daily_usages(INTERVAL_READINGS, 'Ergon', 'T14')
         dec1 = daily_summaries[datetime.date(2016, 12, 1)]
         self.assertAlmostEqual(dec1.all, 6.29, places=2)

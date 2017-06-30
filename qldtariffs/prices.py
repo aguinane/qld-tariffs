@@ -1,9 +1,12 @@
 from collections import namedtuple
-from .tariffs import T11, T12, T14
 import datetime
+from .tariffs import T11, T12, T14
 
-Charge = namedtuple('Charge', ['units', 'unit_rate',
-                               'cost_excl_gst', 'gst', 'cost_incl_gst'])
+
+Charge = namedtuple('Charge',
+                    ['units', 'unit_rate',
+                     'cost_excl_gst', 'gst', 'cost_incl_gst']
+                   )
 
 
 def get_tariff_period(billing_time, retailer='Ergon', tariff='T12'):
@@ -30,6 +33,7 @@ def get_tariff_period(billing_time, retailer='Ergon', tariff='T12'):
                        r['shoulder_months'], r['shoulder_days'],
                        r['shoulder_start'], r['shoulder_end']
                        )
+
     elif 'peak_months' in r.keys():
         # No shoulder period specified
         return in_peak(billing_time,
@@ -188,16 +192,31 @@ def electricity_charges_tou_demand(retailer, days, usage, demand, peak_season=Tr
     supply_charge = calculate_charge(days, tariff_rates['supply_charge'])
     all_usage = calculate_charge(usage, tariff_rates['usage_all'])
     if peak_season:
-        demand = calculate_charge(demand, tariff_rates['demand_peak'])
+        monthly_rate = pro_rata_monthly_charge(
+            tariff_rates['demand_peak'], days)
     else:
+        monthly_rate = pro_rata_monthly_charge(
+            tariff_rates['demand_offpeak'], days)
         # Set chargeable demand to minimum kW value
         if demand < tariff_rates['demand_offpeak_min']:
             demand = tariff_rates['demand_offpeak_min']
-        demand = calculate_charge(demand, tariff_rates['demand_offpeak'])
+    demand_cost = calculate_charge(demand, monthly_rate)
     cost_excl_gst = supply_charge.cost_excl_gst + \
-        all_usage.cost_excl_gst + demand.cost_excl_gst
+        all_usage.cost_excl_gst + demand_cost.cost_excl_gst
     gst = cost_excl_gst * 0.1
     cost_incl_gst = cost_excl_gst + gst
     total_charges = Charge(None, None, cost_excl_gst, gst, cost_incl_gst)
 
-    return ToUDTariff(supply_charge, all_usage, demand, total_charges)
+    return ToUDTariff(supply_charge, all_usage, demand_cost, total_charges)
+
+
+def pro_rata_monthly_charge(monthly_charge, days):
+    """ The monthly or annual charges shall be calculated pro rata having
+    regard to the number of days in the billing cycle that supply was
+    connected (days) and one-twelfth of 365.25 days (to allow for leap years).
+
+    monthly_charge: The monthly charge
+    days: The number of days in the billing period
+    """
+    daily_charge = (monthly_charge * 12) / 365.25
+    return daily_charge * days

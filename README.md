@@ -1,6 +1,8 @@
 # qld-tariffs
 Calculate the energy costs for QLD tariffs
 
+[![Build Status](https://travis-ci.org/aguinane/RateTransformer.svg?branch=master)](https://travis-ci.org/aguinane/RateTransformer)
+
 # Usage
 
 Get the monthly usage summaries from a set of energy usage records:

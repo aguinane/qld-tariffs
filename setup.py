@@ -17,17 +17,21 @@ except FileNotFoundError:
     long_description = ''
 
 setup(
-name = 'qldtariffs',
-    packages = ['qldtariffs'],
-    include_package_data = True,
-    version = '0.1.6',
-    description = 'Calculate the energy costs for QLD tariffs',
+    name='qldtariffs',
+    packages=['qldtariffs'],
+    include_package_data=True,
+    version='0.1.6',
+    description='Calculate the energy costs for QLD tariffs',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='aguinane',
     author_email='alexguinane@gmail.com',
-    url = 'https://github.com/aguinane/qld-tariffs',
-    keywords = ['energy', 'qld', 'tariff'],
+    url='https://github.com/aguinane/qld-tariffs',
+    keywords=['energy', 'qld', 'tariff'],
     classifiers=[],
     license='MIT',
+    install_requires=[
+        'pytoml',
+        'energy-shaper>=0.1'
+    ],
 )

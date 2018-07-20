@@ -91,3 +91,4 @@ ENV/
 
 .vscode
 .mpypy_cache
+.pytest_cache/

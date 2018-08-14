@@ -9,6 +9,5 @@ from .prices import calculate_charge
 from .prices import electricity_charges_general
 from .prices import electricity_charges_tou
 from .prices import electricity_charges_tou_demand
+from .analysis import financial_year_starting
 from .analysis import get_daily_usages, get_monthly_usages
-
-__version__ = "0.1.5.1"

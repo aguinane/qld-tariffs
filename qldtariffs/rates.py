@@ -29,7 +29,7 @@ class Tariff(NamedTuple):
         return f'<Tariff {self.tariff} {self.retailer} {self.fy}>'
 
 
-def get_tariff_rates(tariff='t12', retailer='ergon', fy='2016'):
+def get_tariff_rates(tariff: str='t12', retailer: str='ergon', fy: str='2016'):
     """ Load tariff rates from config file
 
     :param tariff: Name of tariff from config
@@ -77,12 +77,12 @@ def get_tariff_rates(tariff='t12', retailer='ergon', fy='2016'):
         peak_start = prices[periods]['peak_start']
         peak_start = datetime.strptime(peak_start, '%H:%M').time()
     except KeyError:
-        peak_start = time(0,0,0)
+        peak_start = time(0, 0, 0)
     try:
         peak_end = prices[periods]['peak_end']
         peak_end = datetime.strptime(peak_end, '%H:%M').time()
     except KeyError:
-        peak_end = time(0,0,0)
+        peak_end = time(0, 0, 0)
 
     try:
         shoulder_months = prices[periods]['shoulder_months']
@@ -96,12 +96,12 @@ def get_tariff_rates(tariff='t12', retailer='ergon', fy='2016'):
         shoulder_start = prices[periods]['shoulder_start']
         shoulder_start = datetime.strptime(shoulder_start, '%H:%M').time()
     except KeyError:
-        shoulder_start = time(0,0,0)
+        shoulder_start = time(0, 0, 0)
     try:
         shoulder_end = prices[periods]['shoulder_end']
         shoulder_end = datetime.strptime(shoulder_end, '%H:%M').time()
     except KeyError:
-        shoulder_end = time(0,0,0)
+        shoulder_end = time(0, 0, 0)
 
     try:
         demand_peak = fy_rates['demand_peak'] * 100
@@ -114,7 +114,7 @@ def get_tariff_rates(tariff='t12', retailer='ergon', fy='2016'):
     try:
         demand_shoulder_min = fy_rates['demand_shoulder_min']
     except KeyError:
-        demand_shoulder_min = 3.0   
+        demand_shoulder_min = 3.0
 
     return Tariff(tariff, retailer, fy,
                   supply_charge, offpeak, shoulder, peak,

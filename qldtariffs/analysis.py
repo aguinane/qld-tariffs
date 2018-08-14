@@ -1,17 +1,70 @@
-from collections import namedtuple
 from statistics import mean
-import datetime
+from datetime import datetime, date, timedelta
 import calendar
+from typing import NamedTuple
+from typing import Iterable, Tuple, Dict, List
+from energy_shaper import PROFILE_DEFAULT
 from energy_shaper import group_into_profiled_intervals
 from energy_shaper import group_into_daily_summary
 from . import get_tariff_rates
 
-Usage = namedtuple('Usage', ['peak', 'shoulder', 'offpeak', 'all'])
-MonthUsage = namedtuple(
-    'MonthUsage', ['days', 'peak', 'shoulder', 'offpeak', 'all', 'demand'])
+
+class Usage(NamedTuple):
+    """ Represents a usage period """
+    peak: float
+    shoulder: float
+    offpeak: float
+    total: float
+
+    def __repr__(self) -> str:
+        return f'<Usage {self.total}>'
 
 
-def get_monthly_usages(records, retailer='Ergon', tariff='T14', fy='2016'):
+def get_daily_usages(records: Iterable[Tuple[datetime, datetime, float]],
+                     retailer: str='Ergon', tariff: str='t12',
+                     fy: str='2016',
+                     profile: List[float] = PROFILE_DEFAULT
+                     ) -> Dict[str, Usage]:
+    """ Get summated daily usages
+
+    :param records: Tuple in the form of (billing_start, billing_end, usage)
+    :param retailer: Retailer config to get the peak time periods from
+    :param tariff: Name of tariff from config
+    :return: Dictionary with usages by day
+    """
+
+    daily_usage = dict()
+    rates = get_tariff_rates(tariff, retailer, fy)
+    half_hourly = list(group_into_profiled_intervals(records, interval_m=30))
+    daily_summaries = group_into_daily_summary(half_hourly, profile,
+                                               rates.peak_months, rates.peak_days,
+                                               rates.peak_start, rates.peak_end,
+                                               rates.shoulder_months, rates.shoulder_days,
+                                               rates.shoulder_start, rates.shoulder_end)
+    for day in daily_summaries:
+        daily_usage[day.day.date()] = Usage(day.peak, day.shoulder,
+                                            day.offpeak, day.total)
+
+    return daily_usage
+
+
+class MonthUsage(NamedTuple):
+    """ Represents a usage period """
+    days: int
+    peak: float
+    shoulder: float
+    offpeak: float
+    total: float
+    demand: float
+
+    def __repr__(self) -> str:
+        return f'<MonthUsage {self.days} days {self.total}>'
+
+
+def get_monthly_usages(records: Iterable[Tuple[datetime, datetime, float]],
+                       retailer: str='Ergon', tariff: str='T14',
+                       fy: str='2016',
+                       ) -> Dict[Tuple[int, int], MonthUsage]:
     """ Get summated monthly usages
 
     :param records: Tuple in the form of (billing_start, billing_end, usage)
@@ -19,11 +72,11 @@ def get_monthly_usages(records, retailer='Ergon', tariff='T14', fy='2016'):
     :param tariff: Name of tariff from config
     """
 
-    months = dict()
+    months: dict = dict()
     billing = list(group_into_profiled_intervals(records, interval_m=30))
     for reading in billing:
         # Dates are end of billing period so first interval is previous day
-        day = reading.end - datetime.timedelta(hours=0.5)
+        day = reading.end - timedelta(hours=0.5)
         month = (day.year, day.month)
         if month not in months:
             months[month] = []
@@ -45,7 +98,7 @@ def get_monthly_usages(records, retailer='Ergon', tariff='T14', fy='2016'):
     return months_summary
 
 
-def average_peak_demand(daily_summary):
+def average_peak_demand(daily_summary: Dict[str, Usage]) -> float:
     """ Get the average peak demand for a set of daily usage stats
     """
     # Sort and get top 4 demand days
@@ -64,7 +117,7 @@ def average_peak_demand(daily_summary):
         return 0
 
 
-def average_daily_peak_demand(peak_usage, peak_hrs=6.5):
+def average_daily_peak_demand(peak_usage: float, peak_hrs: float =6.5) -> float:
     """ Calculate the average daily peak demand in kW
 
     :param peak_usage: Usage during peak window in kWh
@@ -73,28 +126,11 @@ def average_daily_peak_demand(peak_usage, peak_hrs=6.5):
     return peak_usage / peak_hrs
 
 
-def get_daily_usages(records, retailer='Ergon', tariff='t12', fy='2016'):
-    """ Get summated daily usages
+def financial_year_starting(day: date) -> int:
+    """ Return the financial year (starting) for a date
 
-    :param records: Tuple in the form of (billing_start, billing_end, usage)
-    :param retailer: Retailer config to get the peak time periods from
-    :param tariff: Name of tariff from config
+    :param day: Day in time
     """
-
-    daily_usage = dict()
-
-    profile = [0.05,  0.07,  0.12,  0.11, 0.14,  0.14,  0.27, 0.10]
-
-    rates = get_tariff_rates(tariff, retailer, fy)
-
-    half_hourly = list(group_into_profiled_intervals(records, interval_m=30))
-    daily_summaries = group_into_daily_summary(half_hourly, profile,
-                                               rates.peak_months, rates.peak_days,
-                                               rates.peak_start, rates.peak_end,
-                                               rates.shoulder_months, rates.shoulder_days,
-                                               rates.shoulder_start, rates.shoulder_end)
-    for day in daily_summaries:
-        daily_usage[day.day.date()] = Usage(day.peak, day.shoulder,
-                                            day.offpeak, day.total)
-
-    return daily_usage
+    if day.month >= 7:
+        return day.year
+    return day.year - 1

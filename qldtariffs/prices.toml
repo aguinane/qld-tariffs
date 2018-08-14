@@ -9,19 +9,57 @@
 supply_charge = 89.572
 usage = 24.61
 
+[t11.ergon.2017]
+supply_charge = 87.133
+usage = 25.89
+
+[t11.ergon.2018]
+supply_charge = 88.948
+usage = 25.298
+
 [t11.agl.2016]
 supply_charge = 98.51
 usage = 24.61
 
+[t11.agl.2017]
+supply_charge = 100
+usage = 26
+
+[t11.agl.2018]
+supply_charge = 99
+usage = 25.5
+
 [t11.origin.2016]
 supply_charge = 116.47
 usage = 23.26
+
+[t11.origin.2017]
+supply_charge = 114.19
+usage = 24.51
+
+[t11.origin.2018]
+supply_charge = 112.73
+usage = 24.2
 
 [t12.ergon.2016]
 supply_charge = 101.306
 peak_usage = 55.865
 shoulder_usage = 19.859
 offpeak_usage = 19.859
+periods = 'ergon-periods'
+
+[t12.ergon.2017]
+supply_charge = 89.848
+peak_usage = 61.137
+shoulder_usage = 21.07
+offpeak_usage = 21.07
+periods = 'ergon-periods'
+
+[t12.ergon.2018]
+supply_charge = 77.628
+peak_usage = 62.666
+shoulder_usage = 21.474
+offpeak_usage = 21.474
 periods = 'ergon-periods'
 
 [t12.agl.2016]
@@ -38,6 +76,20 @@ shoulder_usage = 22.15
 offpeak_usage = 17.97
 periods = 'seq-periods'
 
+[t12.origin.2017]
+supply_charge = 114.19
+peak_usage = 32.38
+shoulder_usage = 23.24
+offpeak_usage = 18.94
+periods = 'seq-periods'
+
+[t12.origin.2018]
+supply_charge = 112.73
+peak_usage = 31.97
+shoulder_usage = 23.04
+offpeak_usage = 18.7
+periods = 'seq-periods'
+
 [t14.ergon.2016]
 supply_charge = 60.514
 usage = 14.984
@@ -46,6 +98,21 @@ demand_shoulder = 11.258
 demand_shoulder_min = 3.0
 periods = 'ergon-periods'
 
+[t14.ergon.2017]
+supply_charge = 45.749
+usage = 17.43
+demand_peak = 65.818
+demand_shoulder = 9.931
+demand_shoulder_min = 3.0
+periods = 'ergon-periods'
+
+[t14.ergon.2018]
+supply_charge = 46.42
+usage = 17.593
+demand_peak = 62.777
+demand_shoulder = 9.241
+demand_shoulder_min = 3.0
+periods = 'ergon-periods'
 
 # Peak and shoulder periods are different
 # Specify each unique combination with a new name

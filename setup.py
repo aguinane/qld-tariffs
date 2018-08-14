@@ -20,7 +20,7 @@ setup(
     name='qldtariffs',
     packages=['qldtariffs'],
     include_package_data=True,
-    version='0.1.6',
+    version='0.2',
     description='Calculate the energy costs for QLD tariffs',
     long_description=long_description,
     long_description_content_type='text/markdown',

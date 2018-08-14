@@ -90,4 +90,5 @@ ENV/
 .ropeproject
 
 .vscode
-.mpypy_cache
+.mypy_cache/
+.pytest_cache/

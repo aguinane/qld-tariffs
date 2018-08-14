@@ -6,7 +6,7 @@ Calculate the energy costs for QLD tariffs
 # Usage
 
 Get the monthly usage summaries from a set of energy usage records:
-```
+``` python
 import datetime
 from qldtariffs import get_daily_usages, get_monthly_usages
 
@@ -28,7 +28,7 @@ Will output:
 ```
 
 Then use the usage stats to calculate the bill amount:
-```
+``` python
 from qldtariffs import electricity_charges_general
 print(electricity_charges_general('Ergon', days, usage_all))
 ```
@@ -41,7 +41,7 @@ cost_excl_gst=24117.8, gst=2411.78, cost_incl_gst=26529.579999999998), total_cha
 ```
 
 In addition to the general tariff, you can also calculate time of use tariffs:
-```
+``` python
 from qldtariffs import electricity_charges_tou
 from qldtariffs import electricity_charges_tou_demand
 ```

@@ -1,12 +1,19 @@
-from collections import namedtuple
+from typing import NamedTuple
+from typing import Optional
 import datetime
 from . import get_tariff_rates
 
 
-Charge = namedtuple('Charge',
-                    ['units', 'unit_rate',
-                     'cost_excl_gst', 'gst', 'cost_incl_gst']
-                    )
+class Charge(NamedTuple):
+    """ Represents a charge """
+    units: Optional[float]
+    unit_rate: Optional[float]
+    cost_excl_gst: float
+    gst: float
+    cost_incl_gst: float
+
+    def __repr__(self) -> str:
+        return f'<Charge {self.cost_incl_gst}c>'
 
 
 def calculate_charge(units: float, unit_rate: float) -> Charge:
@@ -21,30 +28,51 @@ def calculate_charge(units: float, unit_rate: float) -> Charge:
     return Charge(units, unit_rate, cost_excl_gst, gst, cost_incl_gst)
 
 
-def electricity_charges_general(retailer: str, days: int, usage: float, fy='2016'):
+class GeneralTariff(NamedTuple):
+    """ Represents a charge """
+    supply_charge: Charge
+    all_usage: Charge
+    total_charges: Charge
+
+    def __repr__(self) -> str:
+        return f'<GeneralTariff {self.total_charges.cost_incl_gst}c>'
+
+
+def electricity_charges_general(retailer: str, days: int, usage: float, 
+                                fy='2016') -> GeneralTariff:
     """ Calculate electricity charges for a general tariff
 
     retailer: The name of the retailer to load rates from
     days: The number of days in the billing period
     usage: The energy usage in kWh for the billing period
+    fy: The financial year (starting) to get prices for
     """
-
-    GeneralTariff = namedtuple('GeneralTariff',
-                               ['supply_charge', 'all_usage', 'total_charges']
-                               )
-
     rates = get_tariff_rates('t11', retailer, fy)
-    supply_charge = calculate_charge(days, rates.supply_charge)
-    all_usage = calculate_charge(usage, rates.offpeak)
-    cost_excl_gst = supply_charge.cost_excl_gst + all_usage.cost_excl_gst
+    supply_charges = calculate_charge(days, rates.supply_charge)
+    usage_charges = calculate_charge(usage, rates.offpeak)
+    cost_excl_gst = supply_charges.cost_excl_gst + usage_charges.cost_excl_gst
     gst = cost_excl_gst * 0.1
     cost_incl_gst = cost_excl_gst + gst
     total_charges = Charge(None, None, cost_excl_gst, gst, cost_incl_gst)
 
-    return GeneralTariff(supply_charge, all_usage, total_charges)
+    return GeneralTariff(supply_charges, usage_charges, total_charges)
 
 
-def electricity_charges_tou(retailer: str, days: int, peak: float, shoulder: float, offpeak: float, fy='2016'):
+class ToUTariff(NamedTuple):
+    """ Represents a charge """
+    supply_charge: Charge
+    peak: Charge
+    shoulder: Charge
+    offpeak: Charge
+    total_charges: Charge
+
+    def __repr__(self) -> str:
+        return f'<ToUTariff {self.total_charges.cost_incl_gst}c>'
+
+
+def electricity_charges_tou(retailer: str, days: int, peak: float, 
+                            shoulder: float, offpeak: float, 
+                            fy='2016') -> ToUTariff:
     """ Calculate electricity charges for a time-of-use tariff
 
     retailer: The name of the retailer to load rates from
@@ -52,46 +80,52 @@ def electricity_charges_tou(retailer: str, days: int, peak: float, shoulder: flo
     peak: The energy usage in kWh for the peak billing period
     shoulder: The energy usage in kWh for the shoulder billing period
     offpeak: The energy usage in kWh for the off-peak billing period
+    fy: The financial year (starting) to get prices for
     """
 
-    ToUTariff = namedtuple('ToUTariff',
-                           ['supply_charge', 'peak',
-                            'shoulder', 'offpeak',
-                            'total_charges']
-                           )
-
     rates = get_tariff_rates('t12', retailer, fy)
-    supply_charge = calculate_charge(days, rates.supply_charge)
-    peak = calculate_charge(peak, rates.peak)
-    shoulder = calculate_charge(shoulder, rates.shoulder)
-    offpeak = calculate_charge(offpeak, rates.offpeak)
-    cost_excl_gst = supply_charge.cost_excl_gst + peak.cost_excl_gst + \
-        shoulder.cost_excl_gst + offpeak.cost_excl_gst
+    supply_charges = calculate_charge(days, rates.supply_charge)
+    peak_charges = calculate_charge(peak, rates.peak)
+    shoulder_charges = calculate_charge(shoulder, rates.shoulder)
+    offpeak_charges = calculate_charge(offpeak, rates.offpeak)
+    cost_excl_gst = supply_charges.cost_excl_gst + peak_charges.cost_excl_gst + \
+        shoulder_charges.cost_excl_gst + offpeak_charges.cost_excl_gst
     gst = cost_excl_gst * 0.1
     cost_incl_gst = cost_excl_gst + gst
     total_charges = Charge(None, None, cost_excl_gst, gst, cost_incl_gst)
 
-    return ToUTariff(supply_charge, peak, shoulder, offpeak, total_charges)
+    return ToUTariff(supply_charges, peak_charges, shoulder_charges,
+                     offpeak_charges, total_charges)
 
 
-def electricity_charges_tou_demand(retailer, days, usage, demand, fy='2016', peak_season=True):
+class ToUDTariff(NamedTuple):
+    """ Represents a charge """
+    supply_charge: Charge
+    all_usage: Charge
+    demand: Charge
+    total_charges: Charge
+
+    def __repr__(self) -> str:
+        return f'<ToUDTariff {self.total_charges.cost_incl_gst}c>'
+
+
+def electricity_charges_tou_demand(retailer: str, days: int,
+                                   usage: float, demand: float,
+                                   fy: str='2016', 
+                                   peak_season: bool=True) -> ToUDTariff:
     """ Calculate electricity charges for a time-of-use tariff
 
     retailer: The name of the retailer to load rates from
     days: The number of days in the billing period
     usage: The energy usage in kWh for the billing period
     demand: The chargeable demand in kW
+    fy: The financial year (starting) to get prices for
     peak_season: Do peak season rates apply
     """
 
-    ToUDTariff = namedtuple('ToUDTariff',
-                            ['supply_charge', 'all_usage',
-                                'demand', 'total_charges']
-                            )
-
     rates = get_tariff_rates('t14', retailer, fy)
-    supply_charge = calculate_charge(days, rates.supply_charge)
-    all_usage = calculate_charge(usage, rates.offpeak)
+    supply_charges = calculate_charge(days, rates.supply_charge)
+    usage_charges = calculate_charge(usage, rates.offpeak)
     if peak_season:
         monthly_rate = pro_rata_monthly_charge(
             rates.demand_peak, days)
@@ -101,14 +135,14 @@ def electricity_charges_tou_demand(retailer, days, usage, demand, fy='2016', pea
         # Set chargeable demand to minimum kW value
         if demand < rates.demand_shoulder_min:
             demand = rates.demand_shoulder_min
-    demand_cost = calculate_charge(demand, monthly_rate)
-    cost_excl_gst = supply_charge.cost_excl_gst + \
-        all_usage.cost_excl_gst + demand_cost.cost_excl_gst
+    demand_charges = calculate_charge(demand, monthly_rate)
+    cost_excl_gst = supply_charges.cost_excl_gst + \
+        usage_charges.cost_excl_gst + demand_charges.cost_excl_gst
     gst = cost_excl_gst * 0.1
     cost_incl_gst = cost_excl_gst + gst
     total_charges = Charge(None, None, cost_excl_gst, gst, cost_incl_gst)
 
-    return ToUDTariff(supply_charge, all_usage, demand_cost, total_charges)
+    return ToUDTariff(supply_charges, usage_charges, demand_charges, total_charges)
 
 
 def pro_rata_monthly_charge(monthly_charge: float, days: int) -> float:

@@ -20,7 +20,7 @@ class Usage(NamedTuple):
         return f'<Usage {self.total}>'
 
 
-def get_daily_usages(records: Iterable[Tuple[datetime, datetime, float]],
+def get_daily_charges(records: Iterable[Tuple[datetime, datetime, float]],
                      retailer: str='Ergon', tariff: str='t12',
                      fy: str='2016',
                      profile: List[float] = PROFILE_DEFAULT
@@ -31,21 +31,37 @@ def get_daily_usages(records: Iterable[Tuple[datetime, datetime, float]],
     :param retailer: Retailer config to get the peak time periods from
     :param tariff: Name of tariff from config
     :return: Dictionary with usages by day
-    """
-
+    """     
     daily_usage = dict()
-    rates = get_tariff_rates(tariff, retailer, fy)
-    half_hourly = list(group_into_profiled_intervals(records, interval_m=30))
-    daily_summaries = group_into_daily_summary(half_hourly, profile,
-                                               rates.peak_months, rates.peak_days,
-                                               rates.peak_start, rates.peak_end,
-                                               rates.shoulder_months, rates.shoulder_days,
-                                               rates.shoulder_start, rates.shoulder_end)
+    daily_summaries = get_daily_usages(records, retailer, tariff, fy, profile)         
     for day in daily_summaries:
         daily_usage[day.day.date()] = Usage(day.peak, day.shoulder,
                                             day.offpeak, day.total)
 
     return daily_usage
+
+
+def get_daily_usages(records: Iterable[Tuple[datetime, datetime, float]],
+                     retailer: str='Ergon', tariff: str='t12',
+                     fy: str='2016',
+                     profile: List[float] = PROFILE_DEFAULT
+                     ):
+    """ Get summated daily usages
+
+    :param records: Tuple in the form of (billing_start, billing_end, usage)
+    :param retailer: Retailer config to get the peak time periods from
+    :param tariff: Name of tariff from config
+    :return: Dictionary with usages by day
+    """
+
+    rates = get_tariff_rates(tariff, retailer, fy)
+    half_hourly = list(group_into_profiled_intervals(records, interval_m=30))
+    return group_into_daily_summary(half_hourly, profile,
+                                               rates.peak_months, rates.peak_days,
+                                               rates.peak_start, rates.peak_end,
+                                               rates.shoulder_months, rates.shoulder_days,
+                                               rates.shoulder_start, rates.shoulder_end)
+
 
 
 class MonthUsage(NamedTuple):
@@ -61,11 +77,11 @@ class MonthUsage(NamedTuple):
         return f'<MonthUsage {self.days} days {self.total}>'
 
 
-def get_monthly_usages(records: Iterable[Tuple[datetime, datetime, float]],
+def get_monthly_charges(records: Iterable[Tuple[datetime, datetime, float]],
                        retailer: str='Ergon', tariff: str='T14',
                        fy: str='2016',
                        ) -> Dict[Tuple[int, int], MonthUsage]:
-    """ Get summated monthly usages
+    """ Get summated monthly charges
 
     :param records: Tuple in the form of (billing_start, billing_end, usage)
     :param retailer: Retailer config to get the peak time periods from
@@ -81,7 +97,7 @@ def get_monthly_usages(records: Iterable[Tuple[datetime, datetime, float]],
         if month not in months:
             months[month] = []
 
-    dailies = get_daily_usages(records, retailer, tariff, fy)
+    dailies = get_daily_charges(records, retailer, tariff, fy)
     for day in dailies:
         month = (day.year, day.month)
         months[month].append(dailies[day])

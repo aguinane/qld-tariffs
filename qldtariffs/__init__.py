@@ -10,4 +10,5 @@ from .prices import electricity_charges_general
 from .prices import electricity_charges_tou
 from .prices import electricity_charges_tou_demand
 from .analysis import financial_year_starting
-from .analysis import get_daily_usages, get_monthly_usages
+from .analysis import get_daily_usages, get_daily_charges
+from .analysis import get_monthly_charges

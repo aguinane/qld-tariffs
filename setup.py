@@ -32,6 +32,6 @@ setup(
     license='MIT',
     install_requires=[
         'pytoml',
-        'energy-shaper>=0.1'
+        'energy-shaper>=0.1.1'
     ],
 )

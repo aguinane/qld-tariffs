@@ -21,10 +21,10 @@ class Usage(NamedTuple):
 
 
 def get_daily_charges(records: Iterable[Tuple[datetime, datetime, float]],
-                     retailer: str='Ergon', tariff: str='t12',
+                     retailer: str='ergon', tariff: str='t12',
                      fy: str='2016',
                      profile: List[float] = PROFILE_DEFAULT
-                     ) -> Dict[str, Usage]:
+                     ) -> Dict[date, Usage]:
     """ Get summated daily usages
 
     :param records: Tuple in the form of (billing_start, billing_end, usage)
@@ -42,7 +42,7 @@ def get_daily_charges(records: Iterable[Tuple[datetime, datetime, float]],
 
 
 def get_daily_usages(records: Iterable[Tuple[datetime, datetime, float]],
-                     retailer: str='Ergon', tariff: str='t12',
+                     retailer: str='ergon', tariff: str='t12',
                      fy: str='2016',
                      profile: List[float] = PROFILE_DEFAULT
                      ):
@@ -78,7 +78,7 @@ class MonthUsage(NamedTuple):
 
 
 def get_monthly_charges(records: Iterable[Tuple[datetime, datetime, float]],
-                       retailer: str='Ergon', tariff: str='T14',
+                       retailer: str='ergon', tariff: str='T14',
                        fy: str='2016',
                        ) -> Dict[Tuple[int, int], MonthUsage]:
     """ Get summated monthly charges

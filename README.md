@@ -19,7 +19,7 @@ PEAK_RECORDS = [
      datetime.datetime(2017, 1, 3, 0, 0), 480)
 ]
 
-month_summaries = get_monthly_usages(PEAK_RECORDS, 'Ergon')
+month_summaries = get_monthly_usages(PEAK_RECORDS, 'ergon')
 for month in sorted(month_summaries):
     print(month, month_summaries[month])
 ```
@@ -34,7 +34,7 @@ Then use the usage stats to calculate the bill amount:
 
 ```python
 from qldtariffs import electricity_charges_general
-print(electricity_charges_general('Ergon', days, usage_all))
+print(electricity_charges_general('ergon', days, usage_all))
 ```
 
 Will yield:

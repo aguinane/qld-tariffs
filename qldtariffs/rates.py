@@ -44,7 +44,13 @@ def get_tariff_rates(tariff: str='t12', retailer: str='ergon', fy: str='2016'):
         prices = toml.load(stream)
 
     retailer_rates = prices[tariff][retailer]
-    fy_rates = retailer_rates[fy]
+    try:
+        fy_rates = retailer_rates[fy]
+    except KeyError:
+        if int(fy) < 2016:
+            fy_rates = retailer_rates['2016']
+        else:
+            fy_rates = retailer_rates['2018']
 
     supply_charge = fy_rates['supply_charge']
     try:

@@ -69,6 +69,20 @@ shoulder_usage = 21.47
 offpeak_usage = 17.49
 periods = 'seq-periods'
 
+[t12.agl.2017]
+supply_charge = 101
+peak_usage = 35
+shoulder_usage = 26
+offpeak_usage = 22
+periods = 'seq-periods'
+
+[t12.agl.2018]
+supply_charge = 99
+peak_usage = 34.5
+shoulder_usage = 25.5
+offpeak_usage = 21.5
+periods = 'seq-periods'
+
 [t12.origin.2016]
 supply_charge = 116.47
 peak_usage = 30.73

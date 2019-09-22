@@ -17,6 +17,10 @@ usage = 25.89
 supply_charge = 88.948
 usage = 25.298
 
+[t11.ergon.2019]
+supply_charge = 90.345
+usage = 23.661
+
 [t11.agl.2016]
 supply_charge = 98.51
 usage = 24.61
@@ -60,6 +64,13 @@ supply_charge = 77.628
 peak_usage = 62.666
 shoulder_usage = 21.474
 offpeak_usage = 21.474
+periods = 'ergon-periods'
+
+[t12.ergon.2019]
+supply_charge = 78.226
+peak_usage = 62.265
+shoulder_usage = 19.872
+offpeak_usage = 19.872
 periods = 'ergon-periods'
 
 [t12.agl.2016]
@@ -125,6 +136,14 @@ supply_charge = 46.42
 usage = 17.593
 demand_peak = 62.777
 demand_shoulder = 9.241
+demand_shoulder_min = 3.0
+periods = 'ergon-periods'
+
+[t14.ergon.2019]
+supply_charge = 45.773
+usage = 15.835
+demand_peak = 59.412
+demand_shoulder = 8.532
 demand_shoulder_min = 3.0
 periods = 'ergon-periods'
 

@@ -1,1 +1,3 @@
+include qldtariffs/py.typed
 include qldtariffs/prices.toml
+include qldtariffs/toutimes.toml

@@ -21,6 +21,10 @@ usage = 25.298
 supply_charge = 90.345
 usage = 23.661
 
+[t11.ergon.2021]
+supply_charge = 90.676
+usage = 21.756
+
 [t11.agl.2017]
 supply_charge = 98.51
 usage = 24.61
@@ -71,6 +75,13 @@ supply_charge = 78.226
 peak_usage = 62.265
 shoulder_usage = 19.872
 offpeak_usage = 19.872
+tou_def = 'qld-regional'
+
+[t12.ergon.2021]
+supply_charge = 75.091
+peak_usage = 55.966
+shoulder_usage = 19.084
+offpeak_usage = 19.084
 tou_def = 'qld-regional'
 
 [t12.agl.2017]
@@ -144,5 +155,13 @@ supply_charge = 45.773
 usage = 15.835
 demand_peak = 59.412
 demand_shoulder = 8.532
+demand_shoulder_min = 3.0
+tou_def = 'qld-regional'
+
+[t14.ergon.2020]
+supply_charge = 47.434
+usage = 15.505
+demand_peak = 51.689
+demand_shoulder = 7.423
 demand_shoulder_min = 3.0
 tou_def = 'qld-regional'
